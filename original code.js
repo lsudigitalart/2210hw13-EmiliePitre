@@ -2,11 +2,17 @@
 
 var street;
 var traffic;
-// var present;
-  // wanted to only display known active streetlights, omitted due to load times
+var present;
 var dia = 0.5;
-var opac
-var time
+var opacS;
+var opacT = 50;
+var opacGlow;
+var opacR;
+var opacG;
+var opacY;
+var time;
+var opacSpeed = 5
+var transparency = 1;
 
 function preload() {
   street = loadTable("streetlights.csv", "header");
@@ -14,10 +20,11 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(800, 800);
+  createCanvas(1000, 1000);
   noStroke();
   textFont("Amatic SC");
   textAlign(CENTER);
+  // frameRate(24);
 }
 
 function draw() {
@@ -26,7 +33,10 @@ function draw() {
   for (var i = 0; i < street.getRowCount(); i++) {
     var lngxS = street.getNum(i, "LONGITUDE");
     var latyS = street.getNum(i, "LATITUDE");
-    streetLight(lngxS, latyS);
+    var present = street.getString(i, "LIGHT PRESENT");
+    if (present = "Yes") {
+      streetLight(lngxS, latyS);
+    }
   }
 
   for (var i = 0; i < traffic.getRowCount(); i++) {
@@ -35,35 +45,44 @@ function draw() {
       trafficLight(lngxT, latyT);
   }
 
-  textSize(42);
-  fill(200, 200, 180, 200);
-  text("Baton Rouge:", 600, 100);
-  time = millis();
-  if (time < 10000) {
-    var subtitle = "A Nightscape"
-    fill(200, 200, 180, 150);
-    text(subtitle, 600, 150);
-  } else {
-    push();
+  push();
+    textSize(36);
+    fill(200, 200, 180, 200);
+    text("Baton Rouge", 600, 100);
     strokeWeight(10);
-    strokeJoin(ROUND)
-    opac = random(10, 20);
-    stroke(200, 200, 180, opac)
+    strokeJoin(ROUND);
 
-    var subtitle = "A Lightscape"
-    opac = random(100, 200);
-    fill(200, 200, 180, opac);
-    text(subtitle, 600, 150);
-    pop();
-  }
+    opacT += opacSpeed * transparency
+
+    if (opacT < 50 || opacT > 200) {
+      transparency = -transparency
+    }
+
+    opacGlow = random(2, 5);
+    stroke(200, 200, 180, opacT/10);
+    fill(200, 200, 180, opacT);
+    if(opacT < 125) {
+      var subtitle = "A Nightscape";
+    } else {
+      var subtitle = "A Lightscape";
+    }
+    text(subtitle, 600, 135);
+  pop();
+
+  saveFrames("lsframe", "png", 2, 60);
 
 }
 
 function streetLight(lngxS, latyS) {
   var x = map(lngxS, -91.29, -90.89, 0, width);
   var y = map(latyS, 30.71, 30.31, 0, height);
-  fill(200, 200, 180, 200);
+  opac = random (200, 250);
+  fill(200, 200, 180, opac);
   ellipse(x, y, dia);
+  opacGlow = random(1, 3);
+  fill(200, 200, 180, opacGlow/2);
+  diaMod = random(30, 40);
+  ellipse(x, y, dia * diaMod);
 }
 
 function trafficLight(lngxT, latyT) {
